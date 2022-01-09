@@ -1,12 +1,13 @@
-const { request, response } = require('express')
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const cors = require('cors')
 
-app.use(express.json())
+app.use(cors()) //middleware for cors policy
+app.use(express.json()) //middle ware for json data
 
 morgan.token('body', (req, res) => JSON.stringify(req.body));
-app.use(morgan(':method :url :status :response-time ms :body'));
+app.use(morgan(':method :url :status :response-time ms :body')); //morgan middleware for logging 
 
 let contacts = [
     { 
