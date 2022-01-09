@@ -9,6 +9,8 @@ app.use(express.json()) //middle ware for json data
 morgan.token('body', (req, res) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :response-time ms :body')); //morgan middleware for logging 
 
+app.use(express.static('build')) //middleware to serve static files from build folder
+
 let contacts = [
     { 
       "id": 1,
