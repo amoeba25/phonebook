@@ -50,7 +50,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 //getting a single resource
-app.get('/api/persons/:id', (request, response)=> {
+app.get('/api/persons/:id', (request, response, next)=> {
     Phone.findById(request.params.id)
     .then(note => {
       if(note){
@@ -73,19 +73,18 @@ app.get('/info', (request, response) => {
 
 
 //for deleting entries from the server
-app.delete('/api/persons/:id', (request, response)=> {
+app.delete('/api/persons/:id', (request, response, next)=> {
     
     Phone.findByIdAndDelete(request.params.id)
     .then(result => {
       response.status(204).end()
     })
     .catch(error => { 
-      console.log(error)
       next(error)})
 })
 
 //posting data to the server
-app.post('/api/persons', (request, response)=> {
+app.post('/api/persons', (request, response, next)=> {
 
     const body = request.body;
 
@@ -110,11 +109,12 @@ app.post('/api/persons', (request, response)=> {
       phone.save().then(savedPhone => {
         response.json(savedPhone)
       })
+      .catch(error=> next(error))
     
 })
 
 //updating the phone entry if name already exists
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response,next) => {
   
   const body= request.body;
 
@@ -123,7 +123,7 @@ app.put('/api/persons/:id', (request, response) => {
     phone: body.phone
   }
 
-  Phone.findByIdAndUpdate(request.params.id, phone, {new: true})
+  Phone.findByIdAndUpdate(request.params.id, phone, {new: true}, {runValidators: true})
     .then(updatePhone=> {
       response.json(updatePhone)
     })
@@ -146,6 +146,8 @@ const errorHandler = (error, request, response, next) => {
 
   if(error.name === 'CastError') {
     return response.status(400).send({error: 'malformatted id'})
+  } else if(error.name ==='ValidationError'){
+    return response.status(400).send({error: "repeated entry"})
   }
 
   //pass error to express middleware otherwise
